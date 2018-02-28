@@ -9,3 +9,18 @@ function writeRoosterData(userId, name, email, imageUrl) {
   });
 }*/
 
+var app = angular.module('roosterApp', [])
+  app.controller('RoosterAddController', function($scope) {
+    $scope.master = {
+        one:
+        {naamfield:"test", roosterUrl: "test"},
+        two:
+        {naamfield:"test", roosterUrl: "test"},
+        three:
+        {naamfield:"test", roosterUrl: "test"}};
+    var roosterList = this;
+    roosterList.addcal = function() {
+        $scope.master.push({naamfield, roosterUrl});
+    };
+
+  });
