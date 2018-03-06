@@ -11,11 +11,19 @@
     <title>Helvetios Rooster Tool</title>
 
     <!-- Bootstrap core CSS -->
+    
+    
+    
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="style.css">
     <!-- Custom styles for this template -->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ical.js/1.2.2/ical.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     <script src="app.js"></script>
+    
     <!-- TODO put this inside css file -->
     <style type="text/css">
         body {
@@ -31,64 +39,47 @@
 </head>
 
     
-<body>
+<body >
  <main role="main" class="container">
         <div class="starter-template">
             <h1>Helvetios Rooster Tool</h1>
             <br>
             <div class="well" ng-app="roosterApp" ng-controller="RoosterAddController as roosterList">
-            <table class="table table-bordered">
-    <thead class="thead-dark">
-        <tr>
-            <th id="klant">Klant</th>
-            <th id="monday" colspan="4">Maandag</th>
-            <th id="tuesday" colspan="4">Dinsdag</th>
-            <th id="wednesday" colspan="4">Woensdag</th>
-            <th id="thursday" colspan="4">Donderdag</th>
-            <th id="friday" colspan="4">Vrijdag</th>
+            <table class="table table-bordered" >
+    <thead class="thead-dark" >
+        <tr >
+        <th id="monday" colspan="5">{{dag}}</th>
+
         </tr>
     </thead>
         <tr>
-            <th headers="klant"></th>
+            <th headers="klant">Klant</th>
             <th headers="monday">Naam</th>
             <th headers="monday">Rol</th>
             <th headers="monday">Werktijd</th>
             <th headers="monday">Pauze</th>            
-            <th headers="monday">Naam</th>
-            <th headers="monday">Rol</th>
-            <th headers="tuesday">Werktijd</th>
-            <th headers="tuesday">Pauze</th>            
-            <th headers="monday">Naam</th>
-            <th headers="monday">Rol</th>
-            <th headers="tuesday">Werktijd</th>
-            <th headers="tuesday">Pauze</th>            
-            <th headers="monday">Naam</th>
-            <th headers="monday">Rol</th>
-            <th headers="tuesday">Werktijd</th>
-            <th headers="tuesday">Pauze</th>            
-            <th headers="monday">Naam</th>
-            <th headers="monday">Rol</th>
-            <th headers="tuesday">Werktijd</th>
-            <th headers="tuesday">Pauze</th>
         </tr>
     <tbody>
         <tr ng-repeat="x in master">
-            <td></td>
-            <td>{{x.p1.naamfield}} </td>
-            <td>{{x.p1.roosterUrl}} </td>
-            <td>{{x.werkTijd}}</td>
-            <td>{{x.pauze}} </td>
+            <td>{{x.data.klant}}</td>
+            <td>{{x.data.locatie}} </td>
+            <td>{{x.data.datum}} </td>
+            <td>{{x.data.starttijd}}</td>
+            <td>{{x.data.eindtijd}} </td>
         
         </tr>
     </tbody>
   </table>
         </div>
+            <form novalidate>
             <div class="form-group group1 row">
+            
             <div class="col">
                 <input id="naamfield" class="form-control group1" type="text" ng-model="naamfield" placeholder="Naam">
                 <input id="calUrl" class="form-control group1" type="text" placeholder="ICal URL" ng-model="roosterUrl"></div>
-            <button class="btn btn-primary group1" ng-click="roosterList.addCal()">Voeg ICal Url Toe</button>
+                <button class="btn btn-primary group1">Voeg ICal Url Toe</button>
                 </div>
+            </form>
         </div>
      
 
@@ -115,9 +106,7 @@
     </script>
     
     
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
     
 
 </body>
