@@ -45,13 +45,15 @@
             <h1>Helvetios Rooster Tool</h1>
             <br>
             <div class="well" ng-app="roosterApp" ng-controller="RoosterAddController as roosterList">
-            <table class="table table-bordered" >
+                
+            <table class="table table-bordered"   ng-repeat="x in master">
     <thead class="thead-dark" >
         <tr >
-        <th id="monday" colspan="5">{{dag}}</th>
+        <th id="monday" colspan="5">{{x.data.datum}}</th>
 
         </tr>
     </thead>
+
         <tr>
             <th headers="klant">Klant</th>
             <th headers="monday">Naam</th>
@@ -59,14 +61,14 @@
             <th headers="monday">Werktijd</th>
             <th headers="monday">Pauze</th>            
         </tr>
-    <tbody>
-        <tr ng-repeat="x in master">
+        <tr>
+            <div>
             <td>{{x.data.klant}}</td>
             <td>{{x.data.locatie}} </td>
             <td>{{x.data.datum}} </td>
             <td>{{x.data.starttijd}}</td>
             <td>{{x.data.eindtijd}} </td>
-        
+            </div>
         </tr>
     </tbody>
   </table>

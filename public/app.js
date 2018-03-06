@@ -1,13 +1,12 @@
 // Get a reference to the database service
-/*let database = firebase.database();
+let database = firebase.database();
 
-function writeRoosterData(userId, name, email, imageUrl) {
-  firebase.database().ref('users/' + userId).set({
+function writeRoosterData(userId, name, calendar) {
+  database.ref('cals/').set({
     username: name,
-    email: email,
-    profile_picture : imageUrl
+    cal: calendar
   });
-};*/
+};
 
 
 
@@ -22,7 +21,7 @@ var app = angular.module('roosterApp', []);
     };
 
   
-
+    let name = document.getElementById("naamfield").value;
  /* app.controller('RoosterHttpGetController', ['$scope', function($scope) {*/
     let myUrl = 'https://ogd.rooster.nl/InPlanningService/ICalService?key=ly65f52k0kwu51u6xqav5xb627an283x';
     let proxy = 'https://cors-anywhere.herokuapp.com/';
@@ -70,6 +69,7 @@ var app = angular.module('roosterApp', []);
         count++;
                
             } 
+        writeRoosterData(count, name, dump);
         console.log(calList);
         $scope.master = calList;
         }), function(response) {console.log("Error"); };
