@@ -49,25 +49,40 @@
             <table class="table table-bordered"   ng-repeat="x in master">
     <thead class="thead-dark" >
         <tr >
-        <th id="monday" colspan="5">{{x.data.datum}}</th>
+        <th id="monday" colspan="5">{{x.data.dag}} ({{x.data.datum}})</th>
 
         </tr>
     </thead>
 
         <tr>
             <th headers="klant">Klant</th>
-            <th headers="monday">Naam</th>
+            <th headers="monday">Locatie</th>
             <th headers="monday">Rol</th>
             <th headers="monday">Werktijd</th>
             <th headers="monday">Pauze</th>            
         </tr>
         <tr>
             <div>
-            <td>{{x.data.klant}}</td>
+            <td><select id="klantselect">
+                <option value="BPD">BPD</option>
+                <option value="BIM">BIM</option>
+                <option value="FBNL">FBNL</option>
+                <option value="BIV">BouwInvest</option></td>
             <td>{{x.data.locatie}} </td>
-            <td>{{x.data.datum}} </td>
-            <td>{{x.data.starttijd}}</td>
-            <td>{{x.data.eindtijd}} </td>
+            <td><select id="rolselect">
+                <option value="scout">scout</option>
+                <option value="chaser">chaser</option>
+                <option value="gatekeeper">gatekeeper</option>
+                <option value="kennis">kennis</option>
+                <option value="pixiecoach">pixiecoach</option>
+                </select></td>
+            <td>{{x.data.werktijd}}</td>
+            <td><select id="pauzeselect">
+                <option value="12:00">12:00</option>
+                <option value="12:00">12:30</option>
+                <option value="12:00">13:00</option>
+                <option value="12:00">13:30</option>
+                </select> </td>
             </div>
         </tr>
     </tbody>
