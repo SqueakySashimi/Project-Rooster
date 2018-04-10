@@ -11,98 +11,112 @@
 
 
 
-let app = angular.module('roosterApp', []);
-  app.controller('RoosterAddController', ['$scope', '$http', function($scope, $http) {
-    let name = document.getElementById("naamfield").value;
- /* app.controller('RoosterHttpGetController', ['$scope', function($scope) {*/
-    //TODO link myUrl aan form in de app  
-    let myUrl = 'https://ogd.rooster.nl/InPlanningService/ICalService?key=ly65f52k0kwu51u6xqav5xb627an283x';
-    let proxy = 'https://cors-anywhere.herokuapp.com/';
-      
-    function getIcalData() {
-        myUrl = document.getElementById("calUrl").value;
-        icalData();
-    };
-      
-    function icalData() {
+angular.module('roosterApp', []);
+    angular.module('roosterApp').factory('httpCall', ['$http', function($http){
+    
         // The proxy url expects as first URL parameter the URL to be bypassed
         // https://cors-anywhere.herokuapp.com/{my-url-to-bypass}
+        let myUrl = 'https://ogd.rooster.nl/InPlanningService/ICalService?key=ly65f52k0kwu51u6xqav5xb627an283x';
+        let proxy = 'https://cors-anywhere.herokuapp.com/';
         let req = {
             method: 'GET',
             url: proxy + myUrl,
-            'Content-Type': 'text/plain'
+            'Content-Type': 'text/plain',
+            cache: true
         }; 
-        $http(req)
-        .then(function(response) {
-            dataCal = response.data;
-            //constants
-            const REALDATE = 1;
-            const ARRAYPOS = 1;
-            //initial declarations
-            let jCalData = ICAL.parse(dataCal);
+        return $http(req).then(function(response) {
+            console.log("Success");
+            return response.data;
+            });   
+        }]);
+
+angular.module('roosterApp').controller('RoosterAddController', ['$scope', '$http', 'httpCall', function($scope, $http, httpCall) { 
+    httpCall.then(function(successResponse){
+        $scope.callback = successResponse;
+        function convertData(con){
+            let jCalData = ICAL.parse(con);
             let comp = new ICAL.Component(jCalData);
             let tevent = comp.getAllSubcomponents("vevent");
-            let calList = [];
-            let count = 0;
-            //for loop gets a new subcomponent and dissects the data which is then put into an object
-            for(const arrValue of tevent) {
+            return tevent;
+        };   
+        function dataSetCreator(){ 
+        let calList = [];
+        let count = 0;
+        //for loop gets a new subcomponent and dissects the data which is then put into an object
+        for(const arrValue of convertData($scope.callback)) {
             //generate an ICAL event so that manipulating Ical data is easier
-            let event = new ICAL.Event(arrValue);
-            //manipulating some date objects, so that representation of dates is easier
-            let dateJs = event.startDate.toJSDate()
-            let niceDate = `${dateJs.getDate()}-${dateJs.getMonth()+REALDATE}-${dateJs.getFullYear()}`
-            let dayOfWeek = (day) => {
-                let days = ["Zondag","Maandag","Dinsdag","Woensdag","Donderdag","Vrijdag","Zaterdag"];
-                return days[day]; 
-            }
+            function createDataInstance(){
+                let event = new ICAL.Event(arrValue);
+                //manipulating some date objects, so that representation of dates is easier
+                let dateJs = event.startDate.toJSDate();
+                const REALDATE = 1;
+                let niceDate = `${dateJs.getDate()}-${dateJs.getMonth()+REALDATE}-${dateJs.getFullYear()}`;
+                let dayOfWeek = (day) => {
+                    let days = ["Zondag","Maandag","Dinsdag","Woensdag","Donderdag","Vrijdag","Zaterdag"];
+                    return days[day]; 
+                };
+                
             //create a temporary dump object that is later pushed into the calList
-            let dump = {
-                summary: event.summary, 
-                locatie: event.location, 
-                dag: dayOfWeek(dateJs.getDay()), 
-                datum: niceDate, 
-                starttijd: `${event.startDate.hour}:${event.startDate.minute}`, 
-                eindtijd: `${event.endDate.hour}:${event.endDate.minute}`};
-            
+                let dump = {
+                    summary: event.summary, 
+                    locatie: event.location, 
+                    dag: dayOfWeek(dateJs.getDay()), 
+                    datum: niceDate, 
+                    starttijd: `${event.startDate.hour}:${event.startDate.minute}`, 
+                    eindtijd: `${event.endDate.hour}:${event.endDate.minute}`
+                };
+                return dump;
+            };           
+            function checkList(item){    
             //Checks if the summary contains one of the customers, if so it replaces the location with the name of the customer
-            if(dump.summary.match(/(BPD)|(FBNL)|(BIM)/g) !== null){
-                dump.locatie = dump.summary.match(/(BPD)|(FBNL)|(BIM)/g).join("");
+                if(item.summary.match(/(BPD)|(FBNL)|(BIM)/g) !== null){
+                     item.locatie = item.summary.match(/(BPD)|(FBNL)|(BIM)/g).join("");
+                };
+                //Checks if the location matches Helvetios and if so changes it to Utrecht SSD
+                if(item.locatie.match(/Helvetios/g) !== null){
+                     item.locatie = "Utrecht SSD";
+                };
+                //adds a 0 if the startdate/enddate ends in 0
+                if(item.starttijd.match(/$:\d{1}\z/g) !== null){
+                     item.starttijd += "0";
+                    console.log("test");
+                };
+                item.eindtijd.toString();
+                if(item.eindtijd.match(/:\d{1}\z/g) !== null){
+                     item.eindtijd += "0";
+                    console.log("test1");
+                };
+                return item;
             };
-            //Checks if the location matches Helvetios and if so changes it to Utrecht SSD
-            if(dump.locatie.match(/Helvetios/g) !== null){
-                dump.locatie = "Utrecht SSD";
-            };
-            //adds a 0 if the startdate/enddate ends in 0
-            if(event.startDate.minute === 0){
-                dump.starttijd += "0";
-            }
-            if(event.endDate.minute === 0){
-                dump.eindtijd += "0";
-            }
+            function checkArray(item){
+            const ARRAYPOS = 1;
             //TODO iets in de logic klopt nog niet, bij de eerste dubbele entry lijkt hij niet de data samen te voegen 
             if(calList[calList.length-ARRAYPOS] !== undefined){    
-                if(calList[calList.length-ARRAYPOS].data.datum === dump.datum){
-                    calList[calList.length-ARRAYPOS].data.eindtijd = dump.eindtijd;
+                if(calList[calList.length-ARRAYPOS].data.datum === item.datum){
+                    calList[calList.length-ARRAYPOS].data.eindtijd = item.eindtijd;
 
                 }else{
                 //create an object with an ID and the data attached  
-                dump.werktijd = `${dump.starttijd} - ${dump.eindtijd}`;
-                calList.push({id: count, data: dump});    
+                item.werktijd = `${item.starttijd} - ${item.eindtijd}`;
+                calList.push({id: count, data: item});    
                 count++;
                 };
-            
+
             }else{
             //create an object with an ID and the data attached   
-            dump.werktijd = `${dump.starttijd} - ${dump.eindtijd}`;    
-            calList.push({id: count, data: dump});    
+            item.werktijd = `${item.starttijd} - ${item.eindtijd}`;    
+            calList.push({id: count, data: item});    
             count++;
             };
-            }; 
-      /*  writeRoosterData(count, name, dump);*/
-        console.log(calList);
+            };
+            checkArray(checkList(createDataInstance()));
+        }; 
         $scope.master = calList;
-        }), function(response) {console.log("Error"); };
-    }//)};
-icalData();
+        };
+        dataSetCreator();
+         
+    });
+    
+            
 }]);
-     // }]);
+    
