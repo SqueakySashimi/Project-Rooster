@@ -9,10 +9,8 @@
 };
 */
 
-
-
-angular.module('roosterApp', []);
-    angular.module('roosterApp').factory('httpCall', ['$http', function($http){
+let app = angular.module('roosterApp', []);
+    app.factory('httpCall', ['$http', function($http){
     
         // The proxy url expects as first URL parameter the URL to be bypassed
         // https://cors-anywhere.herokuapp.com/{my-url-to-bypass}
@@ -29,8 +27,10 @@ angular.module('roosterApp', []);
             return response.data;
             });   
         }]);
-
-angular.module('roosterApp').controller('RoosterAddController', ['$scope', '$http', 'httpCall', function($scope, $http, httpCall) { 
+    app.controller('RoosterAddController', ['$scope', '$http', 'httpCall', function($scope, $http, httpCall) { 
+    $scope.loading = true;  
+    $scope.gui = false;
+    $scope.updateBox = false;
     httpCall.then(function(successResponse){
         $scope.callback = successResponse;
         function convertData(con){
@@ -45,25 +45,44 @@ angular.module('roosterApp').controller('RoosterAddController', ['$scope', '$htt
         //for loop gets a new subcomponent and dissects the data which is then put into an object
         for(const arrValue of convertData($scope.callback)) {
             //generate an ICAL event so that manipulating Ical data is easier
+            let dayOfWeek = (day) => {
+                    let days = ["Zondag","Maandag","Dinsdag","Woensdag","Donderdag","Vrijdag","Zaterdag"];
+                    return days[day]; 
+                };
             function createDataInstance(){
                 let event = new ICAL.Event(arrValue);
                 //manipulating some date objects, so that representation of dates is easier
                 let dateJs = event.startDate.toJSDate();
                 const REALDATE = 1;
-                let niceDate = `${dateJs.getDate()}-${dateJs.getMonth()+REALDATE}-${dateJs.getFullYear()}`;
-                let dayOfWeek = (day) => {
-                    let days = ["Zondag","Maandag","Dinsdag","Woensdag","Donderdag","Vrijdag","Zaterdag"];
-                    return days[day]; 
-                };
+                function addZero(i) {
+                    if (i < 10) {
+                        i = "0" + i;
+                    }
+                    return i;
+                }
+                function makeTime(t){
+                    let h = addZero(t.getHours());
+                    let m = addZero(t.getMinutes());66
+                    return `${h}:${m}`;
+                }
+                function makeDate(d){
+                    let day = d.getDate();
+                    let month = d.getMonth()+REALDATE;
+                    let year = d. getFullYear();
+                    return `(${day}-${month}-${year})`;
+                }
+
                 
             //create a temporary dump object that is later pushed into the calList
                 let dump = {
                     summary: event.summary, 
                     locatie: event.location, 
-                    dag: dayOfWeek(dateJs.getDay()), 
-                    datum: niceDate, 
-                    starttijd: `${event.startDate.hour}:${event.startDate.minute}`, 
-                    eindtijd: `${event.endDate.hour}:${event.endDate.minute}`
+                    dag: dayOfWeek(dateJs.getDay()),
+                    dagInNo: dateJs.getDay(), 
+                    datum: makeDate(dateJs), 
+                    starttijd: makeTime(dateJs), 
+                    eindtijd: makeTime(event.endDate.toJSDate()),
+                    werktijd: ""
                 };
                 return dump;
             };           
@@ -76,47 +95,83 @@ angular.module('roosterApp').controller('RoosterAddController', ['$scope', '$htt
                 if(item.locatie.match(/Helvetios/g) !== null){
                      item.locatie = "Utrecht SSD";
                 };
-                //adds a 0 if the startdate/enddate ends in 0
-                if(item.starttijd.match(/$:\d{1}\z/g) !== null){
-                     item.starttijd += "0";
-                    console.log("test");
-                };
-                item.eindtijd.toString();
-                if(item.eindtijd.match(/:\d{1}\z/g) !== null){
-                     item.eindtijd += "0";
-                    console.log("test1");
-                };
                 return item;
             };
-            function checkArray(item){
+            
+            function checkArray(item){     
             const ARRAYPOS = 1;
+          
             //TODO iets in de logic klopt nog niet, bij de eerste dubbele entry lijkt hij niet de data samen te voegen 
-            if(calList[calList.length-ARRAYPOS] !== undefined){    
-                if(calList[calList.length-ARRAYPOS].data.datum === item.datum){
-                    calList[calList.length-ARRAYPOS].data.eindtijd = item.eindtijd;
+            if(calList[calList.length-ARRAYPOS] !== undefined){
+            let prevDate = calList[calList.length-ARRAYPOS].data;  
+            const DAYMINUS = 1;
+                if(prevDate.dagInNo !== (item.dagInNo-DAYMINUS) && prevDate.dagInNo !== (item.dagInNo) && item.dagInNo !== 1){
+                   calList.push({data: {
+                    summary: event.summary, 
+                    locatie: "Niet aanwezig", 
+                    dagInNo: item.dagInNo - DAYMINUS,
+                    dag: dayOfWeek(item.dagInNo - DAYMINUS),
+                    datum: "",
+                    starttijd: "", 
+                    eindtijd: "",
+                    werktijd: ""
+                }});
+                    console.log(calList.indexOf(item) + `  ${item.dag}  ${item.datum}`);
+                }
+                if(prevDate.datum === item.datum){
+                    prevDate.eindtijd = item.eindtijd;
+                    prevDate.werktijd = `${prevDate.starttijd} - ${item.eindtijd}`
 
                 }else{
                 //create an object with an ID and the data attached  
                 item.werktijd = `${item.starttijd} - ${item.eindtijd}`;
-                calList.push({id: count, data: item});    
+                calList.push({data: item});    
                 count++;
                 };
 
             }else{
             //create an object with an ID and the data attached   
             item.werktijd = `${item.starttijd} - ${item.eindtijd}`;    
-            calList.push({id: count, data: item});    
+            calList.push({data: item});    
             count++;
             };
             };
             checkArray(checkList(createDataInstance()));
-        }; 
+        };    
         $scope.master = calList;
         };
         dataSetCreator();
-         
-    });
+
+        $scope.myName = "Sascha";
+    }, function ( response ) {
+    console.log("HALP SOMETHING WENT WRONG!" + response);
+  }).finally(function() {
+        $scope.loading = false;
+        $scope.gui = true;
+    }); 
     
-            
+    $scope.saveClKlant = function(index){    
+        $scope.master[index].name = $scope.myName;
+        console.log($scope.master[index]);
+        
+        $scope.result = `Succesvol ${$scope.master[index].data.klant}, ${$scope.master[index].data.rol} en  ${$scope.master[index].data.pauze} aangepast voor ${$scope.myName} op ${$scope.master[index].data.datum}`
+        $scope.updateBox = true;
+    }    
+    }]);
+    app.controller('RoosterOptionsCtrl', ['$scope', function($scope) { 
+    $scope.rollen = ["Scout","Chaser","Gatekeeper","Kennis","Pixiecoach","Bootcamp"];
+    $scope.klanten = {"BPD": "BPD","BIM": "BIM","FBNL": "FBNL","BIV": "BIV"};
+    $scope.pauzes = ["12:00","12:30","13:00", "13:30"];
 }]);
-    
+    app.controller('ctrlIndex', function(){
+    let ci = this;
+    ci.numRecords = 5;
+    ci.page = 1;
+    ci.next = function(){
+        ci.page = ci.page + 1;
+    };
+
+    ci.back = function(){
+        ci.page = ci.page - 1;
+    };
+});

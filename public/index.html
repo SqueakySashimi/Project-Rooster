@@ -4,101 +4,69 @@
     <meta name="theme-color" content="#84db94">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
-
-
+    <meta name="description" content="App to check a work schedule">
+    <meta name="author" content="Sascha">
     <title>Helvetios Rooster Tool</title>
-
-    <!-- Bootstrap core CSS -->
-    
-    
-    
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <link rel="stylesheet" href="style.css">
-    <!-- Custom styles for this template -->
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ical.js/1.2.2/ical.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-    <script src="app.js"></script>
-    
-    <!-- TODO put this inside css file -->
-    <style type="text/css">
-        body {
-            padding-top: 5rem;
-            margin: auto;
-        }
-
-        .starter-template {
-            padding: 3rem 1.5rem;
-            text-align: center;
-        }
-    </style>
 </head>
 
     
-<body >
- <main role="main" class="container">
-        <div class="starter-template">
-            <h1>Helvetios Rooster Tool</h1>
-            <br>
-            <div class="well" ng-app="roosterApp" ng-controller="RoosterAddController as roosterList">
-                
-            <table class="table table-bordered"   ng-repeat="x in master">
-    <thead class="thead-dark" >
-        <tr >
-        <th id="monday" colspan="5">{{x.data.dag}} ({{x.data.datum}})</th>
+<body>
+ <main role="main" class="container well">
+    <div class="starter-template">
+        <h1>Helvetios Rooster Tool</h1>
+        <br>
+<div ng-app="roosterApp" ng-controller="RoosterAddController as roosterList">
+<!--loader-->
+<div class="alert alert-success" id="updateBox" ng-show="updateBox">{{result}}</div>
+<div ng-show="loading"><img src="img/Infinity-2.1s-200px.gif"><span class="loader"><br>Loading... Just a moment </span></div>
+    
+    <div  ng-controller="ctrlIndex as ci" ng-show="gui">  
+    <div class="directbtn btn-group">
+        <button class="btn btn-sm btn-primary" ng-click="ci.back()">< Prev week</button>
+        <button class="btn btn-sm btn-primary" ng-click="ci.next()">Next week ></button>
 
+    </div>
+<div class="row">
+    <div class="col-l-6">
+<table class="table table-bordered" >                
+    <thead class="thead-dark">
+        <tr >
+        <th colspan="7"><input class="form-control input-veld" type="text" ng-model="myName" placeholder="Naam"></th> 
         </tr>
     </thead>
-
         <tr>
-            <th headers="klant">Klant</th>
-            <th headers="monday">Locatie</th>
-            <th headers="monday">Rol</th>
-            <th headers="monday">Werktijd</th>
-            <th headers="monday">Pauze</th>            
+            <th>Dag</th>
+            <th>Klant</th>
+            <th>Locatie</th>
+            <th>Rol</th>
+            <th>Werktijd</th>
+            <th>Pauze</th>
+            <th></th>
         </tr>
-        <tr>
-            <div>
-            <td><select id="klantselect">
-                <option value="BPD">BPD</option>
-                <option value="BIM">BIM</option>
-                <option value="FBNL">FBNL</option>
-                <option value="BIV">BouwInvest</option></td>
+    <tbody ng-repeat="x in master track by $index" ng-show="(($index < (ci.page * ci.numRecords)) && ($index >= ((ci.page - 1) * ci.numRecords)))">
+        <tr ng-controller="RoosterOptionsCtrl as roosterOptions">
+            <td>{{x.data.dag}} {{x.data.datum}}</td>
+            <td><select ng-model="x.data.klant" ng-options="k as v for (k,v) in klanten" ></select></td>
             <td>{{x.data.locatie}} </td>
-            <td><select id="rolselect">
-                <option value="scout">scout</option>
-                <option value="chaser">chaser</option>
-                <option value="gatekeeper">gatekeeper</option>
-                <option value="kennis">kennis</option>
-                <option value="pixiecoach">pixiecoach</option>
-                </select></td>
+            <td><select ng-model="x.data.rol" ng-options="rol for rol in rollen"></select></td>
             <td>{{x.data.werktijd}}</td>
-            <td><select id="pauzeselect">
-                <option value="12:00">12:00</option>
-                <option value="12:00">12:30</option>
-                <option value="12:00">13:00</option>
-                <option value="12:00">13:30</option>
-                </select> </td>
-            </div>
+            <td><select ng-model="x.data.pauze" ng-options="pauze for pauze in pauzes"></select> </td>
+            <td><button class="btn btn-primary" ng-click="saveClKlant($index)">Save</button></td>
         </tr>
     </tbody>
-  </table>
+</table>
         </div>
+        </div>
+        </div>
+
             <form novalidate>
             <div class="form-group group1 row">
-            
             <div class="col">
-                <input id="naamfield" class="form-control group1" type="text" ng-model="naamfield" placeholder="Naam">
-                <input id="calUrl" class="form-control group1" type="text" placeholder="ICal URL" ng-model="roosterUrl"></div>
-                <button class="btn btn-primary group1">Voeg ICal Url Toe</button>
+                
                 </div>
             </form>
         </div>
-     
+        </div>
 
     </main>
     <!-- /.container -->
@@ -127,4 +95,14 @@
     
 
 </body>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css?family=Gugi" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ical.js/1.2.2/ical.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="app.js"></script>
 </html>

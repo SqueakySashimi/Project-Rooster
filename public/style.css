@@ -1,0 +1,23 @@
+body {
+    padding-top: 5rem;
+    margin: auto;
+}
+
+.starter-template {
+    padding: 3rem 1.5rem;
+    text-align: center;
+}
+.directbtn{
+    float: right;
+}
+.input-veld{
+    background-color: #212529;
+    color: white;
+    font-weight: bold;
+    border: 0px;
+    text-align: center
+}
+.loader{
+    font-weight: bold;
+    font-family: 'Gugi', cursive;
+}
